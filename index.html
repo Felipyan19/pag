@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ffa8f3;
+            --secondary-color: #8a2be2;
+            --text-color: #fff;
+            --bg-color: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            animation: backgroundAnimation 8s infinite alternate;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background: linear-gradient(135deg, #00e7c8, #dc2be2); }
+            100% { background: linear-gradient(135deg, #dc2be2, #00ffdd); }
+        }
+
+        #game-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h1, h2 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            animation: fadeIn 0.8s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        p {
+            color: #000;
+            font-size: 1.2rem;
+            animation: textBounce 0.5s infinite alternate;
+        }
+
+        @keyframes textBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+
+        button {
+            margin: 10px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: buttonFadeIn 0.5s;
+        }
+
+        @keyframes buttonFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        #question {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            animation: slideIn 0.5s;
+        }
+
+        .option {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            padding: 15px;
+            text-align: left;
+            background-color: var(--bg-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s;
+            color: #000;
+        }
+
+        .option:hover {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        #progress {
+            width: 0%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        #score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            color: #000;
+        }
+
+        .score-item {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        #timer {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feedback.correct {
+            color: #4caf50;
+            animation: feedbackFadeIn 0.5s;
+        }
+
+        .feedback.incorrect {
+            color: #f44336;
+            animation: feedbackFadeIn 0.5s;
+        }
+
+        @keyframes feedbackFadeIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate {
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="start-screen">
+            <h1>Vocabulario En Marcha</h1>
+            <img src="logo.HTML.jpeg" alt="Imagen de inicio" style="width:50%; border-radius: 10px; margin-bottom: 1rem;">
+            <p>¡Pon a prueba tus conocimientos!</p>
+            <button onclick="startGame()">Comenzar</button>
+        </div>
+        <div id="question-screen" style="display: none;">
+            <div id="progress-bar"><div id="progress"></div></div>
+            <div id="timer">Tiempo: <span id="time">40</span>s</div>
+            <img src="logo.HTML.jpeg" alt="Imagen de inicio" style="width:50%; border-radius: 10px; margin-bottom: 1rem;">
+            <div id="question"></div>
+            <div id="options"></div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+        <div id="end-screen" style="display: none;">
+            <h2>¡Juego Terminado!</h2>
+            <img src="logo.HTML.jpeg" alt="Imagen de inicio" style="width:50%; border-radius: 10px; margin-bottom: 1rem;">
+            <div id="score-container">
+                <div class="score-item">Correctas: <span id="score"></span></div>
+                <div class="score-item">Errores: <span id="errors"></span></div>
+            </div>
+            <p>Puntuación total: <span id="total-score"></span></p>
+            <button onclick="restartGame()">Jugar de nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+    {
+        question: "Identifica el sujeto y el predicado en la siguiente oración: \"El gato negro corre rápidamente por el jardín.\"",
+        options: ["Sujeto: El gato negro | Predicado: corre rápidamente por el jardín.", "Sujeto: corre rápidamente por el jardín. | Predicado: El gato negro"],
+        correct: 0,
+        explanation: "El sujeto es 'El gato negro' porque es quien realiza la acción del verbo, mientras que el predicado es 'corre rápidamente por el jardín', que indica lo que el sujeto está haciendo."
+    },
+    {
+        question: "Elige la forma correcta del verbo en pasado: \"Ayer nosotros (caminar / caminamos) por el parque.\"",
+        options: ["caminar", "caminamos"],
+        correct: 1,
+        explanation: "'Caminamos' es la forma correcta en pasado del verbo 'caminar' para el pronombre 'nosotros'. 'Caminar' es la forma en infinitivo, que no corresponde al tiempo pasado."
+    },
+    {
+        question: "Indica si la siguiente oración está en voz activa o pasiva: \"La comida fue preparada por el chef.\"",
+        options: ["Activa", "Pasiva"],
+        correct: 1,
+        explanation: "Esta es una oración en voz pasiva porque el sujeto ('La comida') recibe la acción del verbo ('fue preparada') y no la ejecuta. El agente que realiza la acción es el chef."
+    },
+    {
+        question: "Corrige el error gramatical en esta oración: \"A ella le gusta los libros de aventuras.\"",
+        options: ["A ella le gustan los libros de aventuras.", "A ella le gusta los libro de aventuras."],
+        correct: 0,
+        explanation: "La forma correcta es 'le gustan' porque el sustantivo 'libros' está en plural. El verbo debe concordar en número con el sujeto de la oración."
+    },
+    {
+        question: "Transforma esta oración afirmativa en negativa: \"Ellos están estudiando para el examen.\"",
+        options: ["Ellos no están estudiando para el examen.", "Ellos no estudian para el examen."],
+        correct: 0,
+        explanation: "La opción correcta mantiene el mismo tiempo verbal (presente continuo) y simplemente añade 'no' para negar la acción, respetando la estructura original."
+    },
+    {
+        question: "Usa correctamente una preposición en la siguiente oración: \"Vamos a salir __ la mañana.\"",
+        options: ["por", "en", "a", "durante"],
+        correct: 0,
+        explanation: "La preposición correcta es 'por' porque en español se usa comúnmente 'por la mañana' para referirse a un momento del día."
+    },
+    {
+        question: "Escribe una oración que contenga una conjunción (y, pero, aunque):",
+        options: ["Juan fue al parque y jugó con sus amigos.", "Juan fue al parque pero no jugó con sus amigos."],
+        correct: 0,
+        explanation: "Ambas oraciones son correctas gramaticalmente, pero la opción 1 es preferible porque presenta una conjunción de adición ('y'), que es más común y sencilla para este ejercicio."
+    },
+    {
+        question: "Cambia la siguiente oración a futuro: \"María compra un coche nuevo.\"",
+        options: ["María comprará un coche nuevo.", "María va a comprar un coche nuevo."],
+        correct: 0,
+        explanation: "La forma 'comprará' es el futuro simple del verbo 'comprar', mientras que 'va a comprar' es un futuro perifrástico. Aunque ambas son correctas, la primera es más directa en este contexto."
+    },
+    {
+        question: "Subraya los adjetivos en la siguiente oración: \"La casa grande y antigua está en venta.\"",
+        options: ["grande y antigua", "grande", "antigua", "está en venta"],
+        correct: 0,
+        explanation: "'Grande' y 'antigua' son los adjetivos que describen al sustantivo 'casa'. Los adjetivos en español describen cualidades del sustantivo."
+    },
+    {
+        question: "Transforma esta oración en una pregunta: \"Ellos viajarán a París el próximo año.\"",
+        options: ["¿Viajarán ellos a París el próximo año?", "¿Ellos viajarán a París el próximo año?"],
+        correct: 0,
+        explanation: "En español, al formular una pregunta en futuro, el verbo suele ir al inicio de la oración. La opción correcta respeta esta estructura."
+    },
+    {
+        question: "¿Cuál es el significado de la palabra 'efímero'?",
+        options: ["Que dura poco tiempo.", "Que dura mucho tiempo."],
+        correct: 0,
+        explanation: "'Efímero' describe algo que tiene una duración breve o pasajera."
+    },
+    {
+        question: "Elige el sinónimo más adecuado para la palabra 'valiente':",
+        options: ["cobarde", "audaz", "temeroso"],
+        correct: 1,
+        explanation: "'Audaz' es un sinónimo de 'valiente', ya que ambas palabras se refieren a alguien que tiene coraje o determinación. Las otras opciones ('cobarde' y 'temeroso') son antónimos."
+    },
+    {
+        question: "Relaciona cada palabra con su antónimo:\nAlegría - Tristeza\nGrande - Pequeño\nSimple - Complejo",
+        options: ["Alegría - Tristeza, Grande - Pequeño, Simple - Complejo", "Alegría - Pequeño, Grande - Complejo, Simple - Tristeza"],
+        correct: 0,
+        explanation: "Los antónimos son palabras con significados opuestos: 'Alegría' se opone a 'Tristeza', 'Grande' a 'Pequeño' y 'Simple' a 'Complejo'."
+    },
+    {
+        question: "Usa la palabra 'ambigüedad' en una oración.",
+        options: ["La ambigüedad de su respuesta confundió a todos.", "La ambigüedad de la situación es clara."],
+        correct: 0,
+        explanation: "La primera opción usa 'ambigüedad' correctamente, ya que significa que algo no es claro o tiene más de una interpretación. La segunda opción es contradictoria, ya que 'ambigüedad' no puede ser clara."
+    },
+    {
+        question: "Encuentra el antónimo de 'sereno':",
+        options: ["Tranquilo", "Nervioso", "Calmado"],
+        correct: 1,
+        explanation: "El antónimo de 'sereno' es 'nervioso', ya que 'sereno' describe a alguien calmado o tranquilo, mientras que 'nervioso' describe lo opuesto."
+    },
+    {
+        question: "Completa la oración con el adjetivo adecuado: \"El león es un animal _.\"",
+        options: ["feroz", "manso", "tímido"],
+        correct: 0,
+        explanation: "'Feroz' es un adjetivo comúnmente asociado con el león, que es conocido por su naturaleza salvaje y peligrosa."
+    },
+    {
+        question: "Selecciona la palabra que mejor complete la oración: \"La __ es una virtud importante cuando se trata de escuchar a los demás.\"",
+        options: ["impaciencia", "paciencia", "distracción"],
+        correct: 1,
+        explanation: "La paciencia es la virtud que se necesita cuando se escucha a otros, ya que implica esperar y mostrar tolerancia."
+    },
+    {
+        question: "Define la palabra 'resiliencia'.",
+        options: ["La capacidad de adaptarse a situaciones difíciles.", "La capacidad de trabajar con precisión."],
+        correct: 0,
+        explanation: "Resiliencia se refiere a la capacidad de una persona para recuperarse o adaptarse ante circunstancias adversas o situaciones difíciles."
+    },
+    {
+        question: "Elige el término correcto para la siguiente definición: \"Capacidad de realizar una actividad con gran rapidez y precisión.\"",
+        options: ["Habilidad", "Torpeza", "Incompetencia"],
+        correct: 0,
+        explanation: "'Habilidad' es el término adecuado, ya que describe la capacidad de realizar algo con destreza. 'Torpeza' e 'incompetencia' se refieren a la falta de dicha habilidad."
+    }
+];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let errors = 0;
+        let timer;
+        let timeLeft = 40;
+
+        function startGame() {
+        
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('question-screen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            clearTimeout(timer);
+            if (currentQuestion < questions.length) {
+                const q = questions[currentQuestion];
+                document.getElementById('question').innerText = q.question;
+                speakText(q.question); // Leer pregunta
+
+                const optionsContainer = document.getElementById('options');
+                optionsContainer.innerHTML = '';
+                q.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.innerText = option;
+                    button.classList.add('option');
+                    button.onclick = () => checkAnswer(index);
+                    optionsContainer.appendChild(button);
+                    speakText(option); // Leer opción
+                });
+
+                timeLeft = 40;
+                document.getElementById('time').innerText = timeLeft;
+                updateProgress();
+
+                timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('time').innerText = timeLeft;
+                    if (timeLeft === 0) {
+                        showFeedback(false);
+                    }
+                }, 1000);
+            } else {
+                endGame();
+            }
+        }
+
+        function checkAnswer(selectedOption) {
+            const isCorrect = selectedOption === questions[currentQuestion].correct;
+            showFeedback(isCorrect);
+            showExplanation(); // Mostrar la explicación después de responder
+            clearTimeout(timer);
+        }
+
+        function showFeedback(isCorrect) {
+            const feedback = document.getElementById('feedback');
+            feedback.style.opacity = 1;
+            feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+            feedback.innerText = isCorrect ? '¡Correcto!' : 'Incorrecto';
+            if (isCorrect) {
+                score++;
+            } else {
+                errors++;
+            }
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+                feedback.style.opacity = 0;
+            }, 2000);
+        }
+
+        function showExplanation() {
+            const explanation = questions[currentQuestion].explanation;
+            speakText(explanation); // Leer la explicación
+            alert(explanation); // Mostrarla en un pop-up
+        }
+
+        function endGame() {
+            document.getElementById('question-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('score').innerText = score;
+            document.getElementById('errors').innerText = errors;
+            document.getElementById('total-score').innerText = score * 10;
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            errors = 0;
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+
+        function updateProgress() {
+            const progressPercent = (currentQuestion / questions.length) * 100;
+            document.getElementById('progress').style.width = progressPercent + '%';
+        }
+
+        function speakText(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
